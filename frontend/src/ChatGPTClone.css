@@ -1,0 +1,211 @@
+/* src/ChatGPTClone.css */
+
+/* Container holds sidebar + main chat */
+.chatgpt-container {
+  display: flex;
+  height: 100vh;
+  background-color: #343541; /* ChatGPT's main background color */
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* --- SIDEBAR --- */
+.chatgpt-sidebar {
+  width: 260px;
+  background-color: #202123; /* ChatGPT's sidebar background color */
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* New Chat button */
+.new-chat-btn {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.new-chat-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Chat history (list of conversations) */
+.chat-history {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.history-item {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease;
+}
+
+.history-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer at bottom of sidebar */
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1rem;
+}
+
+.footer-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.footer-item:hover {
+  color: #19c37d;
+}
+
+/* --- MAIN CHAT AREA --- */
+.chatgpt-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+}
+
+/* Container for chat area and input area */
+.chat-container {
+  width: 73%; /* Adjust the width as needed */
+  margin: 80px auto; /* Center the container */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Chat messages container */
+.chat-area {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: #343541; /* match ChatGPT background */
+  padding-bottom: 5rem; /* Add padding to the bottom of the chat area to prevent content from being hidden behind the input bar */
+  align-items: center; /* Center the conversation area */
+  width: 103%; /* Ensure it takes the full width of the container */
+  overflow-y: scroll;
+  box-sizing: border-box;
+}
+
+/* For WebKit browsers */
+.chat-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Initially hide the scrollbar thumb via opacity */
+.chat-area::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* When hovering over the chat area, show the thumb */
+.chat-area:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Firefox */
+.chat-area {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(207, 206, 206, 0.3) transparent;
+}
+
+/* Message bubble styles */
+.message {
+  max-width: 70%;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  padding: 1rem;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  word-wrap: break-word;
+}
+
+/* Assistant messages */
+.message.assistant {
+  background-color: #444654;
+  align-self: flex-start;
+}
+
+/* User messages */
+.message.user {
+  background-color: #202123;
+  align-self: flex-end;
+}
+
+/* Text content of messages */
+.message-content {
+  white-space: pre-wrap;
+}
+
+/* --- INPUT BOX --- */
+.chat-input-area {
+  position: fixed;
+  bottom: 0;
+  left: 60%;
+  transform: translateX(-50%);
+  width: 60%; /* Adjust the width as needed */
+  background-color: #40414f; /* ChatGPT's input background */
+  padding: 1rem;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px 10px 10px 10px; /* Optional: Add rounded corners */
+  margin-bottom: 20px;
+}
+
+.chat-input {
+  flex: 1;
+  resize: none;
+  background-color: #40414f;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+/* Send button */
+.send-btn {
+  background-color: #19c37d;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 0.75rem 1rem;
+  margin-left: 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.send-btn:hover {
+  background-color: #15a46b;
+}
