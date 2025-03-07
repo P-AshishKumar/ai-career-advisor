@@ -1,25 +1,30 @@
+/* Ensuring a structured, well-aligned, and visually appealing layout */
 .assessment-container {
     min-height: 100vh;
-    background: transparent;  /* Changed from solid color to transparent */
+    max-height: 100vh;  /* Prevents overflow */
+    overflow-y: auto;   /* Enables scrolling */
+    background: transparent;
     color: white;
     font-family: "Black Ops One", system-ui;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;  /* Added for proper stacking */
+    position: relative;
 }
 
+/* Background adjustments */
 .background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  transform: scale(1.2) translateX(25%);
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(1.2) translateX(25%);
+    z-index: -1;
 }
 
+/* Navbar */
 .navbar {
     display: flex;
     justify-content: space-around;
@@ -27,6 +32,7 @@
     align-items: center;
 }
 
+/* Logo */
 .logo {
     font-size: 2rem;
     background: linear-gradient(45deg, #000dff, #ff00e6, #ff7700);
@@ -34,46 +40,62 @@
     -webkit-text-fill-color: transparent;
 }
 
+/* Ensure mainarea expands properly */
+.mainarea {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Question Section */
 .question-section {
     width: 100%;
     max-width: 800px;
     margin: 2rem 0;
-  }
-  
-  .skills-grid {
+    text-align: center;
+}
+
+/* Uniform Grid Layout for Skills, Interests, and Options */
+.skills-grid, .interests-list, .options-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Consistent width */
     gap: 1rem;
     margin-top: 1rem;
-  }
-  
-  .skill-button, .interest-button {
+    max-height: 300px;  /* Prevents overflow */
+    padding-right: 10px; /* Space for scrollbar */
+    justify-content: center;
+    margin-left: 5%;
+}
+
+/* Button Styles */
+.skill-button, .interest-button, .option-button {
     padding: 1rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
     background: linear-gradient(45deg, #007bff, #ff00e690, #883e13);
     color: white;
     border-radius: 8px;
     cursor: pointer;
-    transition: 0.4s;
-  }
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-align: center;
+    width: 100%;  /* Ensures all buttons have the same width */
+}
 
-.skill-button:hover, .interest-button:hover {
+/* Hover Effects */
+.skill-button:hover, .interest-button:hover, .option-button:hover {
     transform: scale(1.1);
 }
-  
-  .skill-button.selected, .interest-button.selected {
+
+/* Selected State */
+.skill-button.selected, .interest-button.selected, .option-button.selected {
     background: #19c37d;
     border-color: #19c37d;
-  }
-  
-  .interests-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .submit-button {
+}
+
+/* Submit Button */
+.submit-button {
     padding: 1rem 2rem;
     background: linear-gradient(45deg, #000dff, #ff00e6, #ff7700);
     color: white;
@@ -82,43 +104,46 @@
     font-size: 1.1rem;
     cursor: pointer;
     margin-top: 2rem;
-    transition: 0.4s;
-  }
+    transition: all 0.3s ease;
+}
 
 .submit-button:hover {
     transform: scale(1.1);
 }
-  
-  .submit-button:disabled {
+
+.submit-button:disabled {
     background: #666;
     cursor: not-allowed;
     opacity: 0.7;
-  }
+}
 
-  .submit-button.loading {
+.submit-button.loading {
     background: #19c37d;
     opacity: 0.7;
     cursor: wait;
-  }
+}
 
-  .chat-interface {
+/* Chat Interface */
+.chat-interface {
     min-height: 100vh;
     background-color: #343541;
     color: white;
     padding: 2rem;
     display: flex;
     flex-direction: column;
-  }
-  
-  .messages {
+}
+
+/* Messages */
+.messages {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 2rem;
-  }
-  
-  .input-area {
+}
+
+/* Input Area */
+.input-area {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -127,139 +152,158 @@
     background-color: #40414f;
     display: flex;
     gap: 1rem;
-  }
-  
-  .input-area input {
+}
+
+/* Input Field */
+.input-area input {
     flex: 1;
     padding: 1rem;
     background-color: #40414f;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4px;
     color: white;
-  }
-  
-  .input-area button {
+}
+
+/* Input Button */
+.input-area button {
     padding: 0 2rem;
     background-color: #19c37d;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
+}
 
-  .message {
+/* Messages */
+.message {
     max-width: 70%;
     padding: 1rem;
     margin: 0.5rem 0;
     border-radius: 8px;
-  }
+}
 
-  .message.assistant {
+/* Assistant and User Messages */
+.message.assistant {
     background-color: #444654;
     align-self: flex-start;
-  }
+}
 
-  .message.user {
+.message.user {
     background-color: #202123;
     align-self: flex-end;
-  }
+}
 
-  .message-content {
+/* Message Content */
+.message-content {
     white-space: pre-wrap;
     line-height: 1.4;
-  }
+}
 
-  .send-button {
+/* Send Button */
+.send-button {
     background: #19c37d;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
-  }
+}
 
-  .send-button:hover {
+.send-button:hover {
     background: #15a46b;
-  }
+}
 
-  .intro-container {
+/* Intro Container */
+.intro-container {
     position: absolute;
     left: 10%; /* Adjust this value to move messages left/right */
     top: 25%;
     z-index: 10;
     width: 50%;
     text-align: left;
-  }
+}
 
+/* Intro Text */
 .intro-text {
-  font-size: 2.5rem;
-  color: white;
-  opacity: 0;
-  transform: translateY(20px);
+    font-size: 2.5rem;
+    color: white;
+    opacity: 0;
+    transform: translateY(20px);
 }
 
+/* Message Animations */
 .message-1, .message-2, .message-3 {
-  margin-bottom: 20px;
-  position: relative;
-  background: linear-gradient(45deg, #007bff, #ff00e690, #883e13);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0;
-  transform: translateY(20px);
-  font-weight: 200;
+    margin-bottom: 20px;
+    position: relative;
+    background: linear-gradient(45deg, #007bff, #ff00e690, #883e13);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    transform: translateY(20px);
+    font-weight: 200;
 }
 
+/* Keyframe Animation */
 @keyframes fadeSlideIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
+/* Specific Message Animation */
 .message-1 {
-  animation: fadeSlideIn 0.8s ease-out 0.5s forwards;
-  font-size: 2.5rem;
+    animation: fadeSlideIn 0.8s ease-out 0.5s forwards;
+    font-size: 2.5rem;
 }
 
 .message-2 {
-  animation: fadeSlideIn 0.8s ease-out 1.5s forwards;
-  font-size: 2rem;
+    animation: fadeSlideIn 0.8s ease-out 1.5s forwards;
+    font-size: 2rem;
 }
 
 .message-3 {
-  animation: fadeSlideIn 0.8s ease-out 2.5s forwards;
-  font-size: 2rem;
+    animation: fadeSlideIn 0.8s ease-out 2.5s forwards;
+    font-size: 2rem;
 }
 
+/* Start Button */
 .start-button {
-  opacity: 0;
-  animation: fadeIn 0.8s ease-out 3.5s forwards;
-  padding: 1rem 3rem;
-  font-size: 1.5rem;
-  background: linear-gradient(45deg, #007bff, #ff00e690, #883e13);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.3s;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out 3.5s forwards;
+    padding: 1rem 3rem;
+    font-size: 1.5rem;
+    background: linear-gradient(45deg, #007bff, #ff00e690, #883e13);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.3s;
 }
 
 .start-button:hover {
-  transform: scale(1.1);
+    transform: scale(1.1);
 }
 
+/* Fade In Animation */
 @keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Error Message */
+.error-message {
+    color: #ff6f61;
+    margin-top: 1rem;
 }

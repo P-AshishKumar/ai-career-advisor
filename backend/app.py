@@ -5,13 +5,14 @@ from openai import OpenAI
 from models import CareerProfile, CareerAdvice
 import os
 from dotenv import load_dotenv
+import time
 
-load_dotenv()  # This should be at the top of the file
+load_dotenv()  # Load environment variables
 
 app = Flask(__name__)
 CORS(app)
 
-# Configure Instructor with your OpenAI client
+# Configure OpenAI API Client
 api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=api_key)
 instructor.patch(client)
@@ -41,33 +42,27 @@ Please analyze this profile and provide:
 Focus on AI and technology careers that match their interests and current skill level."""
 
 @app.route("/chat", methods=["POST"])
-async def chat():
+def chat():
+    """Handles user chat requests for career advice."""
     data = request.get_json()
     message = data.get("message", "")
-    context = data.get("context", {})
-
+    
     try:
-        response = await client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a career advisor helping with AI and technology careers. Provide specific, actionable advice based on the user's profile."
-                },
-                {
-                    "role": "user",
-                    "content": message
-                }
+                {"role": "system", "content": "You are a career advisor helping with AI and technology careers. Provide specific, actionable advice."},
+                {"role": "user", "content": message}
             ]
         )
-        return jsonify({
-            "response": response.choices[0].message.content
-        })
+        return jsonify({"response": response.choices[0].message.content})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route("/career_recommendation", methods=["POST"])
-async def get_career_recommendation():
+def get_career_recommendation():
+    """Generates career recommendations based on the user's profile."""
     try:
         data = request.json
         profile = CareerProfile(
@@ -80,7 +75,9 @@ async def get_career_recommendation():
         
         career_prompt = construct_career_prompt(profile)
         
-        career_advice = await client.chat.completions.create(
+        
+        start_time = time.time() 
+        career_advice = client.chat.completions.create(
             model="gpt-4-turbo-preview",
             response_model=CareerAdvice,
             messages=[
@@ -88,6 +85,9 @@ async def get_career_recommendation():
                 {"role": "user", "content": career_prompt}
             ]
         )
+        
+        end_time = time.time()  # End time
+        print(f"API response time: {end_time - start_time} seconds")  # Log response time
 
         return jsonify(career_advice.model_dump())
     
@@ -95,54 +95,47 @@ async def get_career_recommendation():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/initial_assessment", methods=["POST"])
-async def initial_assessment():
+def initial_assessment():
+    """Handles initial career assessment based on provided skills and interests."""
     try:
         data = request.json
-        print("Received data:", data)  # Add logging
         
-        # Validate required fields
-        if not data.get("skills") or not data.get("interests"):
-            return jsonify({"error": "Missing required fields"}), 400
-
-        # Create initial profile from assessment data
         profile = CareerProfile(
             skills=data.get("skills", []),
             interests=data.get("interests", []),
-            experience_level="Entry Level",  # Changed from "To be determined"
-            education="Not Specified",       # Changed from "To be determined"
+            experience_level="To be determined",
+            education="To be determined",
             preferred_work_style="hybrid"
         )
 
-        try:
-            # Generate initial response using instructor
-            career_advice = await client.chat.completions.create(
-                model="gpt-4",
-                response_model=CareerAdvice,
-                messages=[
-                    {"role": "system", "content": "You are a career advisor. Based on the skills and interests provided, generate initial career guidance."},
-                    {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
-                ]
-            )
-
-            return jsonify({
-                "profile": profile.model_dump(),
-                "initial_advice": career_advice.model_dump(),
-                "next_questions": [
-                    "What is your highest level of education?",
-                    "How many years of experience do you have?",
-                    "What type of work environment do you prefer?"
-                ]
-            })
-        except Exception as e:
-            print("OpenAI API error:", str(e))  # Add logging
-            return jsonify({"error": "Failed to generate career advice"}), 500
+        # Generate initial response and follow-up questions
+        career_advice = client.chat.completions.create(
+            model="gpt-4",
+            response_model=CareerAdvice,
+            messages=[
+                {"role": "system", "content": "You are a career advisor. Based on the skills and interests provided, generate initial career guidance."},
+                {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
+            ]
+        )
+        
+        
+        
+        return jsonify({
+            "profile": profile.model_dump(),
+            "initial_advice": career_advice.model_dump(),
+            "next_questions": [
+                "What is your highest level of education?",
+                "How many years of experience do you have?",
+                "What type of work environment do you prefer?"
+            ]
+        })
     
     except Exception as e:
-        print("Server error:", str(e))  # Add logging
         return jsonify({"error": str(e)}), 500
 
 @app.route("/")
 def index():
+    """Basic index route"""
     return "Welcome to the AI Career Advisor Chatbot API. Use /chat for conversation and /career_recommendation for AI career guidance."
 
 if __name__ == "__main__":
