@@ -98,37 +98,47 @@ async def get_career_recommendation():
 async def initial_assessment():
     try:
         data = request.json
+        print("Received data:", data)  # Add logging
         
+        # Validate required fields
+        if not data.get("skills") or not data.get("interests"):
+            return jsonify({"error": "Missing required fields"}), 400
+
         # Create initial profile from assessment data
         profile = CareerProfile(
             skills=data.get("skills", []),
             interests=data.get("interests", []),
-            experience_level="To be determined",
-            education="To be determined",
+            experience_level="Entry Level",  # Changed from "To be determined"
+            education="Not Specified",       # Changed from "To be determined"
             preferred_work_style="hybrid"
         )
 
-        # Generate initial response and follow-up questions using instructor
-        career_advice = await client.chat.completions.create(
-            model="gpt-4",
-            response_model=CareerAdvice,
-            messages=[
-                {"role": "system", "content": "You are a career advisor. Based on the skills and interests provided, generate initial career guidance."},
-                {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
-            ]
-        )
+        try:
+            # Generate initial response using instructor
+            career_advice = await client.chat.completions.create(
+                model="gpt-4",
+                response_model=CareerAdvice,
+                messages=[
+                    {"role": "system", "content": "You are a career advisor. Based on the skills and interests provided, generate initial career guidance."},
+                    {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
+                ]
+            )
 
-        return jsonify({
-            "profile": profile.model_dump(),
-            "initial_advice": career_advice.model_dump(),
-            "next_questions": [
-                "What is your highest level of education?",
-                "How many years of experience do you have?",
-                "What type of work environment do you prefer?"
-            ]
-        })
+            return jsonify({
+                "profile": profile.model_dump(),
+                "initial_advice": career_advice.model_dump(),
+                "next_questions": [
+                    "What is your highest level of education?",
+                    "How many years of experience do you have?",
+                    "What type of work environment do you prefer?"
+                ]
+            })
+        except Exception as e:
+            print("OpenAI API error:", str(e))  # Add logging
+            return jsonify({"error": "Failed to generate career advice"}), 500
     
     except Exception as e:
+        print("Server error:", str(e))  # Add logging
         return jsonify({"error": str(e)}), 500
 
 @app.route("/")

@@ -1,5 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
 .App {
   text-align: center;
+  background: rgb(0, 0, 0);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  font-family: "Black Ops One", system-ui;
+  min-height: 100vh;
 }
 
 .App-logo {
@@ -35,4 +53,71 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.2);
+  z-index: -1;
+  pointer-events: none; /* This allows clicking through the animation */
+}
+
+.assessment-container {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  height: 100px;
+  align-items: center;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 60px;
+}
+
+.logo {
+  font-size: 2rem;
+  background: linear-gradient(45deg, #000dff, #ff00e6, #ff7700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.menu li {
+  font-size: 1rem;
+  transition: 0.4s;
+  cursor: pointer;
+}
+
+.menu li:hover {
+  transform: scale(1.2);
+  background: linear-gradient(45deg, #000dff, #ff00e6, #ff7700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mainarea {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  flex-direction: column;
+}
+
+.text1 {
+  margin-top: 30px;
+  font-size: 3rem;
+  background: linear-gradient(45deg, #000dff, #ff00e6, #ff7700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
