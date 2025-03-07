@@ -1,25 +1,25 @@
 /* src/ChatGPTClone.css */
 
-/* Container holds sidebar + main chat */
+/* Full-screen container for sidebar + chat */
 .chatgpt-container {
   display: flex;
   height: 100vh;
-  background-color: #343541; /* ChatGPT's main background color */
+  background-color: #343541; /* Dark ChatGPT-style background */
   color: #fff;
   font-family: 'Roboto', sans-serif;
 }
 
-/* --- SIDEBAR --- */
+/* --- SIDEBAR STYLES --- */
 .chatgpt-sidebar {
   width: 260px;
-  background-color: #202123; /* ChatGPT's sidebar background color */
+  background-color: #202123; /* Sidebar background */
   display: flex;
   flex-direction: column;
   padding: 1rem;
   box-sizing: border-box;
 }
 
-/* New Chat button */
+/* "New Chat" button */
 .new-chat-btn {
   background-color: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -36,7 +36,7 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Chat history (list of conversations) */
+/* Chat history */
 .chat-history {
   flex: 1;
   overflow-y: auto;
@@ -49,7 +49,6 @@
   border-radius: 5px;
   cursor: pointer;
   background-color: transparent;
-  border: 1px solid transparent;
   transition: background-color 0.2s ease;
 }
 
@@ -57,7 +56,7 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Footer at bottom of sidebar */
+/* Sidebar footer */
 .sidebar-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   padding-top: 1rem;
@@ -74,40 +73,41 @@
   color: #19c37d;
 }
 
-/* --- MAIN CHAT AREA --- */
+/* --- CHAT AREA --- */
 .chatgpt-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  
 }
 
-/* Container for chat area and input area */
+/* Chat container (centers chat messages) */
 .chat-container {
-  width: 73%; /* Adjust the width as needed */
-  margin: 80px auto; /* Center the container */
+  width: 60%; /* Reduced width for better centering */
+  margin: auto; /* Fully center the chat area */
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-content: center; /* Align chat vertically to the center */
 }
 
-/* Chat messages container */
+
 .chat-area {
   flex: 1;
-  padding: 1rem;
+  padding: 2rem 20rem 2rem 20rem; /* Increased padding for better spacing */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  background: #343541; /* match ChatGPT background */
-  padding-bottom: 5rem; /* Add padding to the bottom of the chat area to prevent content from being hidden behind the input bar */
-  align-items: center; /* Center the conversation area */
-  width: 103%; /* Ensure it takes the full width of the container */
-  overflow-y: scroll;
+  background: #343541;
+  padding-bottom: 5rem;
+  align-items: center;
+  width: 100%;
   box-sizing: border-box;
+  border-radius: 10px; /* Optional: Adds slight rounded corners */
+  margin-bottom: 80px; 
 }
 
-/* For WebKit browsers */
+/* Scrollbar (WebKit Browsers) */
 .chat-area::-webkit-scrollbar {
   width: 8px;
 }
@@ -116,7 +116,6 @@
   background: transparent;
 }
 
-/* Initially hide the scrollbar thumb via opacity */
 .chat-area::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
@@ -124,61 +123,64 @@
   transition: opacity 0.3s ease;
 }
 
-/* When hovering over the chat area, show the thumb */
+/* Show scrollbar when hovering */
 .chat-area:hover::-webkit-scrollbar-thumb {
   opacity: 1;
 }
 
-/* Firefox */
+/* Firefox scrollbar */
 .chat-area {
   scrollbar-width: thin;
   scrollbar-color: rgba(207, 206, 206, 0.3) transparent;
 }
 
-/* Message bubble styles */
+/* --- CHAT MESSAGES --- */
 .message {
   max-width: 70%;
-  padding: 1rem;
+  margin-bottom: 1rem;
   border-radius: 8px;
+  padding: 1rem;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  word-wrap: break-word;
 }
 
 /* Assistant messages */
 .message.assistant {
   background-color: #444654;
   align-self: flex-start;
+  border-radius: 12px 12px 12px 2px;
 }
 
 /* User messages */
 .message.user {
   background-color: #202123;
   align-self: flex-end;
-  color: white;
+  border-radius: 12px 12px 2px 12px;
 }
 
-/* Text content of messages */
+/* Message text */
 .message-content {
   white-space: pre-wrap;
-  line-height: 1.4;
 }
 
-/* --- INPUT BOX --- */
+/* --- INPUT BOX (STICKY AT BOTTOM) --- */
 .chat-input-area {
   position: fixed;
-  bottom: 0;
-  left: 60%;
+  bottom: 20px; /* Adjusted spacing from the bottom */
+  left: 50%;
   transform: translateX(-50%);
-  width: 60%; /* Adjust the width as needed */
-  background-color: #40414f; /* ChatGPT's input background */
+  width: 65%; /* Reduced width for better centering */
+  background-color: #40414f;
   padding: 1rem;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px 10px 10px 10px; /* Optional: Add rounded corners */
-  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
 }
 
+/* Text input field */
 .chat-input {
   flex: 1;
   resize: none;
@@ -187,11 +189,12 @@
   outline: none;
   color: #fff;
   font-size: 1rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 5px;
 }
 
 /* Send button */
-.send-btn {
+.send-button {
   background-color: #19c37d;
   border: none;
   color: #fff;
@@ -204,72 +207,60 @@
   align-items: center;
 }
 
-.send-btn:hover {
+.send-button:hover {
   background-color: #15a46b;
 }
 
-.career-form-stepper {
-  background-color: #2a2b32;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin: 1rem 0;
+/* --- MESSAGE CONTENT STYLING --- */
+.message-content {
+    padding: 10px;
+    line-height: 1.8;
+    font-size: 1rem;
 }
 
-.question-container {
-  margin-bottom: 1rem;
+/* Headings inside messages */
+.message-heading {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
-.question-container h3 {
-  color: #fff;
-  margin-bottom: 1rem;
+/* Sections inside messages */
+.message-section {
+    /* margin-top: 15px; */
+    padding: 10px;
+    /* background-color: rgba(255, 255, 255, 0.05); */
+    /* border-radius: 10px; */
 }
 
-.form-select, .form-multiselect {
-  width: 100%;
-  padding: 0.5rem;
-  background-color: #40414f;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+/* Bullet Lists for Recommendations */
+.message-section ul {
+    margin: 10px 0;
+    padding-left: 10px;
 }
 
-.career-form-overlay {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-  background: #2a2b32;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+.message-section ul li {
+    margin-bottom: 8px;
 }
 
-.career-form-btn {
-  background: #19c37d;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 1rem;
+/* Message Footer */
+.message-footer {
+    margin-top: 20px;
+    font-style: italic;
+    font-size: 1rem;
+    color: #ccc;
 }
 
-.multi-select label {
-  display: block;
-  margin: 0.5rem 0;
+/* Increased spacing between sections */
+.message-section strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
 }
 
-.chat-window {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: #343541;
-  padding: 2rem;
-}
-
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Adjust career path text */
+.message-section p {
+    font-size: 1rem;
+    margin-top: 5px;
+    color: #ddd;
 }

@@ -1,13 +1,18 @@
-// src/App.js
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import CareerAssessment from './Components/CareerAssessment'
+import ChatGPTClone from './ChatGPTClone';
 import './App.css';
-import CareerAssessment from './Components/careerAssessment';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <CareerAssessment />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<CareerAssessment />} />
+        <Route path="/chat" element={<ChatGPTClone />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;

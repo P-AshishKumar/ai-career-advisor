@@ -6,12 +6,12 @@ from models import CareerProfile, CareerAdvice
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # This should be at the top of the file
+load_dotenv()  # Load environment variables
 
 app = Flask(__name__)
 CORS(app)
 
-# Configure Instructor with your OpenAI client
+# Configure OpenAI API Client
 api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=api_key)
 instructor.patch(client)
@@ -41,33 +41,27 @@ Please analyze this profile and provide:
 Focus on AI and technology careers that match their interests and current skill level."""
 
 @app.route("/chat", methods=["POST"])
-async def chat():
+def chat():
+    """Handles user chat requests for career advice."""
     data = request.get_json()
     message = data.get("message", "")
-    context = data.get("context", {})
-
+    
     try:
-        response = await client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a career advisor helping with AI and technology careers. Provide specific, actionable advice based on the user's profile."
-                },
-                {
-                    "role": "user",
-                    "content": message
-                }
+                {"role": "system", "content": "You are a career advisor helping with AI and technology careers. Provide specific, actionable advice."},
+                {"role": "user", "content": message}
             ]
         )
-        return jsonify({
-            "response": response.choices[0].message.content
-        })
+        return jsonify({"response": response.choices[0].message.content})
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route("/career_recommendation", methods=["POST"])
-async def get_career_recommendation():
+def get_career_recommendation():
+    """Generates career recommendations based on the user's profile."""
     try:
         data = request.json
         profile = CareerProfile(
@@ -80,7 +74,7 @@ async def get_career_recommendation():
         
         career_prompt = construct_career_prompt(profile)
         
-        career_advice = await client.chat.completions.create(
+        career_advice = client.chat.completions.create(
             model="gpt-4-turbo-preview",
             response_model=CareerAdvice,
             messages=[
@@ -95,11 +89,11 @@ async def get_career_recommendation():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/initial_assessment", methods=["POST"])
-async def initial_assessment():
+def initial_assessment():
+    """Handles initial career assessment based on provided skills and interests."""
     try:
         data = request.json
         
-        # Create initial profile from assessment data
         profile = CareerProfile(
             skills=data.get("skills", []),
             interests=data.get("interests", []),
@@ -108,8 +102,8 @@ async def initial_assessment():
             preferred_work_style="hybrid"
         )
 
-        # Generate initial response and follow-up questions using instructor
-        career_advice = await client.chat.completions.create(
+        # Generate initial response and follow-up questions
+        career_advice = client.chat.completions.create(
             model="gpt-4",
             response_model=CareerAdvice,
             messages=[
@@ -117,7 +111,9 @@ async def initial_assessment():
                 {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
             ]
         )
-
+        
+        
+        
         return jsonify({
             "profile": profile.model_dump(),
             "initial_advice": career_advice.model_dump(),
@@ -133,6 +129,7 @@ async def initial_assessment():
 
 @app.route("/")
 def index():
+    """Basic index route"""
     return "Welcome to the AI Career Advisor Chatbot API. Use /chat for conversation and /career_recommendation for AI career guidance."
 
 if __name__ == "__main__":
