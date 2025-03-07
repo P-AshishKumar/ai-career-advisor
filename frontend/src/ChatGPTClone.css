@@ -138,12 +138,8 @@
 /* Message bubble styles */
 .message {
   max-width: 70%;
-  margin-bottom: 1rem;
-  border-radius: 8px;
   padding: 1rem;
-  line-height: 1.4;
-  font-size: 0.95rem;
-  word-wrap: break-word;
+  border-radius: 8px;
 }
 
 /* Assistant messages */
@@ -156,11 +152,13 @@
 .message.user {
   background-color: #202123;
   align-self: flex-end;
+  color: white;
 }
 
 /* Text content of messages */
 .message-content {
   white-space: pre-wrap;
+  line-height: 1.4;
 }
 
 /* --- INPUT BOX --- */
@@ -208,4 +206,70 @@
 
 .send-btn:hover {
   background-color: #15a46b;
+}
+
+.career-form-stepper {
+  background-color: #2a2b32;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.question-container {
+  margin-bottom: 1rem;
+}
+
+.question-container h3 {
+  color: #fff;
+  margin-bottom: 1rem;
+}
+
+.form-select, .form-multiselect {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #40414f;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.career-form-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: #2a2b32;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.career-form-btn {
+  background: #19c37d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.multi-select label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #343541;
+  padding: 2rem;
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }

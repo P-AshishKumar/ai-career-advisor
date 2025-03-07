@@ -1,12 +1,126 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './ChatGPTClone.css';
-import { FaRegSun, FaRegMoon, FaRegTrashAlt, FaArrowRight } from 'react-icons/fa';
-import CareerForm from './Components/Careerform';
 
-function ChatGPTClone({ initialData }) {
+import { FaRegSun, FaRegMoon, FaRegTrashAlt, FaArrowRight } from 'react-icons/fa';
+// Remove these incorrect imports
+// import CareerForm from './Components/Careerform'
+
+const CareerForm = ({ onSubmit }) => {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    education: '',
+    interests: [],
+    experience_level: '',
+    preferred_work_style: 'hybrid'
+  });
+
+  const questions = {
+    1: {
+      question: "What is your highest level of education?",
+      type: "select",
+      options: ["High School", "Bachelor's", "Master's", "PhD", "Self-taught/Bootcamp"]
+    },
+    2: {
+      question: "What areas of AI/technology interest you the most?",
+      type: "multiSelect",
+      options: ["Machine Learning", "Computer Vision", "NLP", "Robotics", "Data Science", "Cloud Computing"]
+    },
+    3: {
+      question: "What is your current experience level?",
+      type: "select",
+      options: ["Entry Level", "Mid Level", "Senior Level"]
+    }
+  };
+
+  const handleNext = () => {
+    const currentResponse = step === 1 ? formData.education : 
+                          step === 2 ? formData.interests.join(', ') :
+                          formData.experience_level;
+
+    onSubmit({
+      question: questions[step].question,
+      answer: currentResponse,
+      showResponse: true
+    });
+
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      onSubmit({
+        education: formData.education,
+        interests: formData.interests,
+        skills: formData.interests,
+        experience_level: formData.experience_level,
+        preferred_work_style: 'hybrid'
+      });
+    }
+  };
+
+  const renderQuestionInput = () => {
+    const currentQ = questions[step];
+    
+    if (currentQ.type === "select") {
+      return (
+        <select 
+          className="form-select"
+          value={formData[step === 1 ? 'education' : 'experience_level']}
+          onChange={(e) => {
+            setFormData({
+              ...formData,
+              [step === 1 ? 'education' : 'experience_level']: e.target.value
+            });
+          }}
+        >
+          <option value="">Select an option</option>
+          {currentQ.options.map((opt, i) => (
+            <option key={i} value={opt}>{opt}</option>
+          ))}
+        </select>
+      );
+    } else if (currentQ.type === "multiSelect") {
+      return (
+        <div className="form-multi-select">
+          {currentQ.options.map((opt, i) => (
+            <label key={i}>
+              <input 
+                type="checkbox" 
+                value={opt}
+                checked={formData.interests.includes(opt)}
+                onChange={(e) => {
+                  const newInterests = e.target.checked 
+                    ? [...formData.interests, opt] 
+                    : formData.interests.filter(interest => interest !== opt);
+                  setFormData({
+                    ...formData,
+                    interests: newInterests
+                  });
+                }}
+              />
+              {opt}
+            </label>
+          ))}
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className="career-form">
+      <h2>Career Assessment</h2>
+      <div className="form-question">
+        <p>{questions[step].question}</p>
+        {renderQuestionInput()}
+      </div>
+      <button className="form-next-btn" onClick={handleNext}>
+        {step < 3 ? 'Next' : 'Submit'}
+      </button>
+    </div>
+  );
+};
+
+function ChatGPTClone() {
     // Manage conversation and state
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: "Hi! Based on your profile, let's discuss your career path in more detail." }
+        { role: 'assistant', content: "Hi! I'm your AI Career Advisor. Let's find the best AI career path for you!" }
     ]);
     const [inputText, setInputText] = useState('');
     const [theme, setTheme] = useState('dark');
@@ -21,19 +135,6 @@ function ChatGPTClone({ initialData }) {
         }
     }, [messages]);
 
-    useEffect(() => {
-        if (initialData) {
-            // Add the initial career advice to the chat
-            setMessages(prev => [...prev, {
-                role: 'assistant',
-                content: `Based on your skills (${initialData.profile.skills.join(', ')}) 
-                         and interest in ${initialData.profile.interests.join(', ')}, 
-                         let's explore some career possibilities. 
-                         First, ${initialData.next_questions[0]}`
-            }]);
-        }
-    }, [initialData]);
-
     // Function to simulate streaming the response using Fetch streaming
     const streamResponse = async (currentInput) => {
         try {
@@ -43,21 +144,17 @@ function ChatGPTClone({ initialData }) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: currentInput })
             });
-
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             // Initialize a reader to process the streaming response
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let done = false;
             let fullResponse = "";
-
             // Create a temporary message to update as chunks come in
             const tempMessage = { role: 'assistant', content: "" };
             setMessages((prev) => [...prev, tempMessage]);
-
             const updateMessage = (content) => {
                 setMessages((prev) => {
                     const newMessages = [...prev];
@@ -65,7 +162,6 @@ function ChatGPTClone({ initialData }) {
                     return newMessages;
                 });
             };
-
             while (!done) {
                 const { value, done: doneReading } = await reader.read();
                 done = doneReading;
@@ -97,41 +193,38 @@ function ChatGPTClone({ initialData }) {
         setInputText('');
 
         // Uncomment one of the following approaches:
-
         // 1. If your backend supports streaming:
         // await streamResponse(currentInput);
 
         // 2. Or, if you want a simple non-streaming approach using Axios or fetch:
-        
         try {
-          const response = await fetch('http://localhost:5000/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: currentInput })
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          if (data.response) {
-            setMessages((prev) => [
-              ...prev,
-              { role: 'assistant', content: data.response }
-            ]);
-          } else {
-            throw new Error('API did not return a valid response');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          setMessages((prev) => [
-            ...prev,
-            {
-              role: 'assistant',
-              content: "Sorry, something went wrong. Please try again."
+            const response = await fetch('http://localhost:5000/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: currentInput })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-          ]);
+            const data = await response.json();
+            if (data.response) {
+                setMessages((prev) => [
+                    ...prev,
+                    { role: 'assistant', content: data.response }
+                ]);
+            } else {
+                throw new Error('API did not return a valid response');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setMessages((prev) => [
+                ...prev,
+                {
+                    role: 'assistant',
+                    content: "Sorry, something went wrong. Please try again."
+                }
+            ]);
         }
-        
     };
 
     // New Chat: Save current conversation and start fresh
@@ -156,21 +249,13 @@ function ChatGPTClone({ initialData }) {
     // Add this function to handle career advice
     const handleCareerFormSubmit = async (data) => {
         if (data.showResponse) {
-            // Add user's response to chat
-            setMessages(prev => [...prev, 
-                { role: 'user', content: `${data.question}\nMy answer: ${data.answer}` }
+            // Add user's response to chat without AI response
+            setMessages(prev => [...prev,
+                { role: 'user', content: `${data.answer}` }
             ]);
             return;
         }
-    
-        if (data.aiResponse) {
-            // Add AI's response to chat
-            setMessages(prev => [...prev, 
-                { role: 'assistant', content: data.aiResponse }
-            ]);
-            return;
-        }
-    
+
         // If it's the final submission
         try {
             const response = await fetch('http://localhost:5000/career_recommendation', {
@@ -179,7 +264,7 @@ function ChatGPTClone({ initialData }) {
                 body: JSON.stringify(data)
             });
             const result = await response.json();
-            setMessages(prev => [...prev, 
+            setMessages(prev => [...prev,
                 { role: 'assistant', content: formatCareerAdvice(result) }
             ]);
             setShowCareerForm(false);
@@ -192,16 +277,12 @@ function ChatGPTClone({ initialData }) {
     const formatCareerAdvice = (advice) => `
     Career Recommendations:
     ${advice.recommended_roles.join(', ')}
-
     Career Path:
     ${advice.career_path}
-
     Skills to Develop:
     ${advice.skill_gaps.join(', ')}
-
     Action Items:
     ${advice.action_items.join('\n')}
-
     Rationale:
     ${advice.rationale}
     `;
@@ -235,7 +316,6 @@ function ChatGPTClone({ initialData }) {
                     </div>
                 </div>
             </aside>
-
             {/* Main Chat Area */}
             <main className="chatgpt-main">
                 <div className="chat-container">
@@ -285,4 +365,3 @@ function ChatGPTClone({ initialData }) {
 }
 
 export default ChatGPTClone;
-

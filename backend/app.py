@@ -1,96 +1,133 @@
 from flask import Flask, request, jsonify
-from openai import OpenAI  # Using the new client import style
-import os
 from flask_cors import CORS
+import instructor
+from openai import OpenAI
+from models import CareerProfile, CareerAdvice
+import os
 from dotenv import load_dotenv
+
+load_dotenv()  # This should be at the top of the file
 
 app = Flask(__name__)
 CORS(app)
-load_dotenv()
-# Initialize the OpenAI client with your API key.
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "your-api-key-here"))
 
-# Base system message to guide GPT‑3.5‑turbo for AI Career Advisor responses
+# Configure Instructor with your OpenAI client
+api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=api_key)
+instructor.patch(client)
+
 BASE_SYSTEM_MESSAGE = {
     "role": "system",
-    "content": (
-        "You are an AI Career Advisor specializing in Artificial Intelligence and Data Science. "
-        "Your goal is to guide users in choosing the best AI career path based on their background, skill level, and interests. "
-        "You must provide clear, structured advice about career options, required skills, learning resources, projects, and certifications. "
-        "Ensure responses are insightful, action-driven, and supportive of career growth."
-    )
+    "content": "You are an AI Career Advisor specializing in AI and technology careers. Provide clear, actionable advice."
 }
 
+def construct_career_prompt(profile: CareerProfile) -> str:
+    """Constructs a detailed prompt from user's career profile"""
+    return f"""Please provide career guidance for a candidate with the following profile:
+
+Education: {profile.education}
+Technical Skills: {', '.join(profile.skills)}
+Experience Level: {profile.experience_level}
+Areas of Interest: {', '.join(profile.interests)}
+Preferred Work Style: {profile.preferred_work_style}
+
+Please analyze this profile and provide:
+1. 3-5 specific recommended roles that match their background
+2. A clear career progression path for the next 3-5 years
+3. Key skill gaps they should address
+4. Specific action items they can take immediately
+5. A brief rationale for these recommendations
+
+Focus on AI and technology careers that match their interests and current skill level."""
+
 @app.route("/chat", methods=["POST"])
-def chat():
+async def chat():
     data = request.get_json()
-    print(data)
-
-    conversation_history = data.get("conversation", [])
-    new_message = data.get("message", "")
-
-    if not new_message:
-        return jsonify({"error": "No new message provided."}), 400
-
-    # Build the messages list for the OpenAI Chat API
-    messages = [BASE_SYSTEM_MESSAGE]
-
-    # Append conversation history.
-    for msg in conversation_history:
-        if msg["role"] == "user":
-            messages.append({"role": "user", "content": msg["content"]})
-        elif msg["role"] == "assistant":
-            messages.append({"role": "assistant", "content": msg["content"]})
-
-    # Add the user's new message
-    messages.append({"role": "user", "content": new_message})
-
-    print(messages)
+    message = data.get("message", "")
+    context = data.get("context", {})
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=messages,
+        response = await client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a career advisor helping with AI and technology careers. Provide specific, actionable advice based on the user's profile."
+                },
+                {
+                    "role": "user",
+                    "content": message
+                }
+            ]
         )
-        # Extract the answer using the updated extraction method.
-        answer = response.choices[0].message.content.strip()
-        return jsonify({"response": answer})
+        return jsonify({
+            "response": response.choices[0].message.content
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route("/career_recommendation", methods=["POST"])
-def career_recommendation():
-    data = request.get_json()
-    user_profile = {
-        "role": data.get("role", ""),
-        "aiKnowledge": data.get("aiKnowledge", ""),
-        "careerInterests": data.get("careerInterests", []),
-        "learningPreferences": data.get("learningPreferences", []),
-        "availability": data.get("availability", ""),
-        "goals": data.get("goals", "")
-    }
-
-    # Construct a structured prompt for career recommendations
-    structured_prompt = (
-        f"The user is a {user_profile['role']} with {user_profile['aiKnowledge']} AI knowledge. "
-        f"They are interested in {', '.join(user_profile['careerInterests'])}. "
-        f"They prefer learning via {', '.join(user_profile['learningPreferences'])} and can dedicate {user_profile['availability']} per week. "
-        f"Their specific career goal is: {user_profile['goals']}. "
-        "Based on this, provide a detailed AI career recommendation, including relevant skills, learning resources, projects, and certifications."
-    )
-
-    print("Structured Prompt:", structured_prompt)
-
+async def get_career_recommendation():
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                BASE_SYSTEM_MESSAGE,
-                {"role": "user", "content": structured_prompt}
-            ],
+        data = request.json
+        profile = CareerProfile(
+            skills=data.get("skills", []),
+            experience_level=data.get("experience_level", ""),
+            interests=data.get("interests", []),
+            education=data.get("education", ""),
+            preferred_work_style=data.get("preferred_work_style", "hybrid")
         )
-        answer = response.choices[0].message.content.strip()
-        return jsonify({"recommendation": answer})
+        
+        career_prompt = construct_career_prompt(profile)
+        
+        career_advice = await client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            response_model=CareerAdvice,
+            messages=[
+                {"role": "system", "content": "You are an expert career advisor specializing in AI and technology careers."},
+                {"role": "user", "content": career_prompt}
+            ]
+        )
+
+        return jsonify(career_advice.model_dump())
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/initial_assessment", methods=["POST"])
+async def initial_assessment():
+    try:
+        data = request.json
+        
+        # Create initial profile from assessment data
+        profile = CareerProfile(
+            skills=data.get("skills", []),
+            interests=data.get("interests", []),
+            experience_level="To be determined",
+            education="To be determined",
+            preferred_work_style="hybrid"
+        )
+
+        # Generate initial response and follow-up questions using instructor
+        career_advice = await client.chat.completions.create(
+            model="gpt-4",
+            response_model=CareerAdvice,
+            messages=[
+                {"role": "system", "content": "You are a career advisor. Based on the skills and interests provided, generate initial career guidance."},
+                {"role": "user", "content": f"Skills: {', '.join(profile.skills)}\nInterests: {', '.join(profile.interests)}"}
+            ]
+        )
+
+        return jsonify({
+            "profile": profile.model_dump(),
+            "initial_advice": career_advice.model_dump(),
+            "next_questions": [
+                "What is your highest level of education?",
+                "How many years of experience do you have?",
+                "What type of work environment do you prefer?"
+            ]
+        })
+    
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
